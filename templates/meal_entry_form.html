@@ -30,6 +30,20 @@
             width: 100%;
             padding: 10px 0;
         }
+        /* If the screen size is 601px wide or more, set the font-size of <div> to 80px */
+        @media screen and (min-width: 601px) {
+            .log-notes {
+                width: 100%;
+            }
+        }
+
+        /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+        @media screen and (max-width: 600px) {
+            .log-notes {
+                width: 100%;
+            }
+        }
+        
         button {
             padding: 5px 10px;
             margin: 2px;
@@ -62,12 +76,26 @@
             margin-left: auto;
             margin-right: auto;
         }
-        #meal_pic {
-            border: 1px solid black;
-            max-width:450px; 
-            min-width: 200px;
-            max-height: 600px;
+        /* If the screen size is 601px wide or more, set the font-size of <div> to 80px */
+        @media screen and (min-width: 601px) {
+            #meal_pic {
+                border: 1px solid black;
+                max-width:450px; 
+                min-width: 200px;
+                max-height: 600px;
+            }
         }
+
+        /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+        @media screen and (max-width: 600px) {
+            #meal_pic {
+                border: 1px solid black;
+                max-width:350px; 
+                min-width: 200px;
+                max-height: 600px;
+            }
+        }
+
     </style>
 </head>
 <body class="bg-light">
@@ -76,7 +104,7 @@
             <div class="col">
                 <h3 class="card-title mt-3 mb-4"><script>mealData.meal_id >= 0 ? document.write("Update Meal") : document.write("Enter New Meal")</script></h3>
                 <div class="row mt-3">
-                    <div class="col" style="height:400px">
+                    <div class="col-md-12 col-lg-6" style="height:400px">
                         <!-- Name -->
                         <div>
                             <label for="name" class="form-label fw-bold">Name of Meal</label>
@@ -88,13 +116,13 @@
                             <textarea class="form-control" id="description" name="description" rows="7"></textarea>
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-md-12 col-lg-6">
                         <img id="meal_pic" class="center">
                     </div>
                 </div>    
 
                 <div class="row mt-3">
-                    <div class="col">
+                    <div class="col-md-12 col-lg-3">
                         <!-- Cuisine Type -->
                         <div class="mb-3">
                             <label for="cuisine_type" class="form-label fw-bold">Cuisine Type</label>
@@ -110,7 +138,7 @@
                             </select>
                         </div>
                     </div>
-                        <div class="col">
+                        <div class="col-md-12 col-lg-3">
                             <!-- Cooking Mode -->
                             <div class="mb-3">
                                 <label for="cooking_mode" class="form-label fw-bold">Cooking Mode</label>
@@ -126,14 +154,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-md-12 col-lg-3">
                             <!-- Cooking Time -->
                             <div class="mb-3">
                                 <label for="cooking_time" class="form-label fw-bold">Cooking Time (minutes)</label>
                                 <input type="number" class="form-control" id="cooking_time" name="cooking_time" min="0">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-md-12 col-lg-3">
                             <!-- Cooking Ease -->
                             <div class="mb-3">
                                 <label for="cooking_ease" class="form-label fw-bold">Cooking Ease</label>
@@ -150,7 +178,7 @@
                     </div>
                     
                     <div class="row">
-                        <div class="col">
+                        <div class="col-md-12 col-lg-6">
                             <!-- Image Path -->
                             <div class="mb-3">
                                 <label for="image_path" class="form-label fw-bold">Image Path</label>
@@ -165,7 +193,7 @@
                                 </form>                                
                             </div>                            
                         </div>
-                        <div class="col">
+                        <div class="col-md-12 col-lg-6">
                             <!-- Source URL -->
                             <div class="mb-3">
                                 <label for="source_url" class="form-label fw-bold">Source</label>
@@ -175,7 +203,7 @@
                     </div>
                     
                     <div class="row mt-3">
-                        <div class="col">
+                        <div class="col-md-12 col-lg-6">
                             <!-- Ingredients -->
                             <div class="ingredients-section">
                                 <label for="ingredientContainer" class="form-label fw-bold">Ingredients</label>
@@ -185,7 +213,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-md-12 col-lg-6">
                             <!-- Directions -->
                             <div class="directions-section">
                                 <label for="directionContainer" class="form-label fw-bold">Directions</label>
@@ -197,7 +225,7 @@
                         </div>
                     </div>
                     <div class="row mt-3">
-                        <div class="col">
+                        <div class="col-md-12 col-lg-6">
                             <div class="mealLogSection mb-3">
                                 <label for="mealLogContainer" class="form-label fw-bold">Meal Log</label>
                                 <div id="mealLogContainer" class="mb-2"></div>
@@ -209,13 +237,13 @@
                     </div>
 
                     <div class="row">
-                        <div class="col">
-                            <div id="mealStatsContainer">zzzz</div>
+                        <div class="col-md-12 col-lg-6">
+                            <div id="mealStatsContainer"></div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col">
+                        <div class="col-md-6 col-lg-12">
                             <!-- Submit Button -->
                             <div class="mb-3 d-grid gap-2 d-md-flex justify-content-md-end">
                                 <script>
