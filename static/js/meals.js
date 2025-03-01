@@ -43,7 +43,7 @@ document.getElementById('submit-btn').addEventListener('click', function() {
     document.querySelectorAll('.log-row').forEach(item => {
         const logEntryDate = item.querySelector(`input[name^="log_entry_date_"]`).value;
         const logEntryRating = item.querySelector(`input[name^="log_entry_rating_"]`).value;
-        const logEntryNotes = item.querySelector(`input[name^="log_entry_notes_"]`).value;
+        const logEntryNotes = item.querySelector(`textarea[name^="log_entry_notes_"]`).value;
         if (logEntryDate != ''){
             //logEntryNum++;
             jsonData.log_entries.push({
