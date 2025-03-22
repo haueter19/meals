@@ -80,7 +80,7 @@ document.getElementById('submit-btn').addEventListener('click', function() {
         
         uploadImage();
         alert('This meal has been saved')
-        window.location = window.location.host+"/find"
+        window.location.href = window.location.host+"/find"
     })
     .catch((error) => {
         console.error('Error:', error);
@@ -191,7 +191,7 @@ async function deleteMeal(meal_id){
                     </div>`;
             */
             console.log(`Successfully deleted meal with id: ${meal_id}`)
-            window.location = window.location.origin+'/find'
+            window.location.href = window.location.origin+'/find'
         } catch (error) {
             console.error(error);
             alert("Error deleting meals. Please try again later.");
