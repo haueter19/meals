@@ -124,7 +124,7 @@ async def read_meals(skip: int = 0, limit: int = 100, db: Session = Depends(get_
     else:
         meal_stats = []
 
-    print(meal_stats)
+    #print(meal_stats)
     meal_stats_list = []
     for row in meal_stats:
         meal_stats_list.append(

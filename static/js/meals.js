@@ -77,10 +77,10 @@ document.getElementById('submit-btn').addEventListener('click', function() {
     .then(data => {
         console.log('Success:', data);
         // Assuming success, now upload the image
-        
+
         uploadImage();
         alert('This meal has been saved')
-        window.location.href = window.location.host+"/find"
+        window.location.href = window.location.origin+"/find"
     })
     .catch((error) => {
         console.error('Error:', error);
