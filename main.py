@@ -122,7 +122,7 @@ async def read_meals(skip: int = 0, limit: int = 100, db: Session = Depends(get_
     if meal_stats.shape[0] > 0:
         meal_stats = meal_stats.to_dict(orient='records')
     else:
-        meal_stats = {'first_meal_date':'never', 'recent_meal_date':'never', 'meal_count':0, 'avg_rating':0}
+        meal_stats = []
 
     print(meal_stats)
     meal_stats_list = []
