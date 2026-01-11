@@ -1,0 +1,19 @@
+To start server from with docker, use this folder to run this command:
+docker compose up -d
+
+# Stop the container:
+docker compose down
+
+# Restart after code changes
+docker compose down
+docker compose build
+docker compose up -d
+
+# View real-time logs
+docker compose logs -f
+
+# Check container status
+docker compose ps
+
+# Access container shell (for debugging)
+docker compose exec web bash
