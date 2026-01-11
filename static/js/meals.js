@@ -1,14 +1,103 @@
+// Shows a toast notification
+// type: 'success', 'error', or 'warning'
+// message: the message to display
+// autoDismiss: whether to auto-dismiss (default true for success, false for error)
+function showToast(type, title, message, autoDismiss = null) {
+    console.log('showToast called:', type, title, message);
+    const container = document.getElementById('toastContainer');
+    if (!container) {
+        console.error('Toast container not found!');
+        alert(title + ': ' + message); // Fallback to alert
+        return;
+    }
+    const toastId = 'toast-' + Date.now();
+
+    // Default autoDismiss based on type
+    if (autoDismiss === null) {
+        autoDismiss = type === 'success';
+    }
+
+    const toastHtml = `
+        <div id="${toastId}" class="toast toast-${type}" role="alert" aria-live="assertive" aria-atomic="true" ${autoDismiss ? 'data-bs-autohide="true" data-bs-delay="3000"' : 'data-bs-autohide="false"'}>
+            <div class="toast-header">
+                <strong class="me-auto">${title}</strong>
+                <button type="button" class="btn-close ${type === 'warning' ? '' : 'btn-close-white'}" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', toastHtml);
+
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+    // Remove from DOM after hidden
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+// Validates required fields and returns an array of error messages
+function validateMealForm() {
+    const errors = [];
+    const name = document.getElementById('name').value.trim();
+    const description = document.getElementById('description').value.trim();
+
+    if (!name) {
+        errors.push('Name of Meal is required');
+        document.getElementById('name').classList.add('is-invalid');
+    } else {
+        document.getElementById('name').classList.remove('is-invalid');
+    }
+
+    if (!description) {
+        errors.push('Description is required');
+        document.getElementById('description').classList.add('is-invalid');
+    } else {
+        document.getElementById('description').classList.remove('is-invalid');
+    }
+
+    return errors;
+}
+
+// Clear validation styling when user starts typing
+document.addEventListener('DOMContentLoaded', function() {
+    ['name', 'description'].forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            element.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        }
+    });
+});
+
 // Submits form for new meal
-document.getElementById('submit-btn').addEventListener('click', function() {
+document.getElementById('submit-btn')?.addEventListener('click', function() {
+    // Validate required fields
+    const validationErrors = validateMealForm();
+    if (validationErrors.length > 0) {
+        showToast('error', 'Validation Error', validationErrors.join('<br>'));
+        return;
+    }
+
+    // Handle cooking_time - send null if empty instead of empty string
+    const cookingTimeValue = document.getElementById('cooking_time').value;
+    const cookingTime = cookingTimeValue ? parseInt(cookingTimeValue, 10) : null;
+
     const jsonData = {
-        name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        cuisine_type: document.getElementById('cuisine_type').value,
-        cooking_mode: document.getElementById('cooking_mode').value,
-        cooking_ease: document.getElementById('cooking_ease').value,
-        cooking_time: document.getElementById('cooking_time').value,
-        image_path: document.getElementById('image_path').value,
-        source_url: document.getElementById('source_url').value,
+        name: document.getElementById('name').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        cuisine_type: document.getElementById('cuisine_type').value || null,
+        cooking_mode: document.getElementById('cooking_mode').value || null,
+        cooking_ease: document.getElementById('cooking_ease').value || null,
+        cooking_time: cookingTime,
+        image_path: document.getElementById('image_path').value || null,
+        source_url: document.getElementById('source_url').value || null,
         ingredients: [],
         directions: [],
         log_entries: [],
@@ -73,17 +162,44 @@ document.getElementById('submit-btn').addEventListener('click', function() {
         },
         body: body
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            // Try to parse error response
+            return response.json().then(errorData => {
+                throw errorData;
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         console.log('Success:', data);
         // Assuming success, now upload the image
 
         uploadImage();
-        alert('This meal has been saved')
-        window.location.href = window.location.origin+"/find"
+        showToast('success', 'Success', 'Meal has been saved!');
+        // Redirect after a short delay so user can see the toast
+        setTimeout(() => {
+            window.location.href = window.location.origin + "/find";
+        }, 1500);
     })
     .catch((error) => {
         console.error('Error:', error);
+        // Handle validation errors from Pydantic
+        let errorMessage;
+        if (error.detail && Array.isArray(error.detail)) {
+            const errorMessages = error.detail.map(err => {
+                const field = err.loc ? err.loc.join(' > ') : 'Unknown field';
+                return `<strong>${field}:</strong> ${err.msg}`;
+            });
+            errorMessage = errorMessages.join('<br>');
+        } else if (error.detail) {
+            errorMessage = error.detail;
+        } else if (error.message) {
+            errorMessage = error.message;
+        } else {
+            errorMessage = 'Please check your input and try again.';
+        }
+        showToast('error', 'Failed to Save Meal', errorMessage);
     });
 });
 
@@ -194,7 +310,7 @@ async function deleteMeal(meal_id){
             window.location.href = window.location.origin+'/find'
         } catch (error) {
             console.error(error);
-            alert("Error deleting meals. Please try again later.");
+            showToast('error', 'Delete Failed', 'Error deleting meal. Please try again later.');
         }
     } else {
         console.log('Delete cancelled')
