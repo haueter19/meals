@@ -26,8 +26,61 @@
         
         <div class="mb-3">
             <a href="/entry">Enter new meal</a>
+            <span class="mx-2">|</span>
+            <a href="/dashboard">Dashboard</a>
         </div>
-        
+
+        <div class="row g-2 mb-4 align-items-end">
+            <div class="col-12 col-md-4">
+                <input type="text" id="filter-search" class="form-control" placeholder="Search meals...">
+            </div>
+            <div class="col-6 col-md-2">
+                <select id="filter-cuisine" class="form-select">
+                    <option value="">All Cuisines</option>
+                    <option value="American">American</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Creole">Creole</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Thai">Thai</option>
+                    <option value="Cuban">Cuban</option>
+                    <option value="BBQ">BBQ</option>
+                    <option value="Greek">Greek</option>
+                    <option value="Caribbean">Caribbean</option>
+                    <option value="Korean">Korean</option>
+                    <option value="Middle Eastern">Middle Eastern</option>
+                    <option value="Mediterranean">Mediterranean</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select id="filter-mode" class="form-select">
+                    <option value="">All Modes</option>
+                    <option value="Instant Pot">Instant Pot</option>
+                    <option value="Stir Fry">Stir Fry</option>
+                    <option value="Bake">Bake</option>
+                    <option value="Boil">Boil</option>
+                    <option value="Grill">Grill</option>
+                    <option value="Stovetop">Stovetop</option>
+                    <option value="Mixed">Mixed</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select id="filter-ease" class="form-select">
+                    <option value="">All Ease</option>
+                    <option value="quick">Quick</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="time-consuming">Time-consuming</option>
+                    <option value="weeknight">Weeknight</option>
+                    <option value="weekend">Weekend</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <button id="clear-filters-btn" class="btn btn-outline-secondary w-100">Clear</button>
+            </div>
+        </div>
+
         <div id="meal-list" class="row g-4"></div>
         
         <div class="text-center mt-4">

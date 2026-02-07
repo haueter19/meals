@@ -346,13 +346,6 @@ $(document).ready(function(){
         $('input[name="log_entry_notes_'+log_entry_num+'"]').val(v['notes']);
     })
 
-    let mealStatsHtml = '';
-    $.each(mealData['mealStats'], function(k,v){
-        mealStatsHtml += `${k}: ${v}<br>`;
-    })
-    $("#mealStatsContainer").html(mealStatsHtml)
-
-
     document.getElementById('image_uploader').addEventListener('change', function(event) {
         const fileName = event.target.files[0]?.name; // Get the selected file name
         if (fileName) {

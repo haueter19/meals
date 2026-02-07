@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meal Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Meal Dashboard</h1>
+            <a href="/find" class="btn btn-outline-primary">Find Meals</a>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-muted">Total Meals</h5>
+                        <p class="display-6 fw-bold">{{ data.total_meals }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-muted">Log Entries</h5>
+                        <p class="display-6 fw-bold">{{ data.total_log_entries }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-muted">Meals Logged</h5>
+                        <p class="display-6 fw-bold">{{ data.meals_logged }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-muted">Avg Rating</h5>
+                        <p class="display-6 fw-bold">{{ data.avg_rating }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Breakdowns Column -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">By Cuisine</div>
+                    <ul class="list-group list-group-flush">
+                        {% for item in data.cuisine_breakdown %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.label }}
+                            <span class="badge bg-info rounded-pill">{{ item.count }}</span>
+                        </li>
+                        {% endfor %}
+                        {% if not data.cuisine_breakdown %}
+                        <li class="list-group-item text-muted">No data yet</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">By Cooking Mode</div>
+                    <ul class="list-group list-group-flush">
+                        {% for item in data.mode_breakdown %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.label }}
+                            <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                        </li>
+                        {% endfor %}
+                        {% if not data.mode_breakdown %}
+                        <li class="list-group-item text-muted">No data yet</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">By Cooking Ease</div>
+                    <ul class="list-group list-group-flush">
+                        {% for item in data.ease_breakdown %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.label }}
+                            <span class="badge bg-warning rounded-pill">{{ item.count }}</span>
+                        </li>
+                        {% endfor %}
+                        {% if not data.ease_breakdown %}
+                        <li class="list-group-item text-muted">No data yet</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <!-- Most Cooked -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Most Cooked Meals</div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Meal</th>
+                                    <th class="text-center">Times</th>
+                                    <th class="text-center">Avg Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for meal in data.most_cooked %}
+                                <tr>
+                                    <td><a href="/meal/{{ meal.meal_id }}">{{ meal.name }}</a></td>
+                                    <td class="text-center">{{ meal.times_cooked }}</td>
+                                    <td class="text-center">{{ meal.avg_rating }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not data.most_cooked %}
+                                <tr><td colspan="3" class="text-muted">No log entries yet</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recently Added Meals -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header fw-bold">Recently Added Meals</div>
+                    <ul class="list-group list-group-flush">
+                        {% for meal in data.recent_meals %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="/meal/{{ meal.meal_id }}">{{ meal.name }}</a>
+                            {% if meal.cuisine_type %}
+                            <span class="badge bg-info">{{ meal.cuisine_type }}</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                        {% if not data.recent_meals %}
+                        <li class="list-group-item text-muted">No meals yet</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row g-4 mt-2 mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header fw-bold">Recent Activity</div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Meal</th>
+                                    <th class="text-center">Rating</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in data.recent_logs %}
+                                <tr>
+                                    <td>{{ log.date }}</td>
+                                    <td><a href="/meal/{{ log.meal_id }}">{{ log.name }}</a></td>
+                                    <td class="text-center">{{ log.rating if log.rating and log.rating >= 0 else "-" }}</td>
+                                    <td>{{ log.notes or "" }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not data.recent_logs %}
+                                <tr><td colspan="4" class="text-muted">No log entries yet</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
