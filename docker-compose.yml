@@ -5,16 +5,13 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - meal_data:/app/data
+      - ./data:/app/data
       - ./assets:/app/assets
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
     networks:
       - meals-network
-
-volumes:
-  meal_data:
 
 networks:
   meals-network:

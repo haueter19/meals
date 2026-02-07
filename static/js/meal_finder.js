@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mealList = document.getElementById("meal-list");
     const nextBtn = document.getElementById("next-btn");
     let skip = 0;
-    const limit = 10;
+    const limit = 102;
 
     
 
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             meals.forEach(meal => {
-                console.log(meal)
+                //console.log(meal)
                 
                 if (meal.meal_stats.length>0){
                     meal_count = meal.meal_stats[0]['meal_count']
