@@ -90,6 +90,14 @@ async def create_meal(meal: MealCreate, db: Session = Depends(get_db)):
 
         db_meal.directions.append(db_direction)
 
+    for entry in meal.log_entries:
+        db_entry = LogEntry(
+            date=entry.date,
+            rating=entry.rating,
+            notes=entry.notes,
+        )
+        db_entry.meal = db_meal
+        db.add(db_entry)
 
     db.commit()
     db.refresh(db_meal)
@@ -261,17 +269,6 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
         .filter(Meal.meal_id == meal_id)
         .first()
     )
-    # Stats from Meal Log Entries
-    meal_stats = pd.DataFrame(db.execute(text("""
-                                                SELECT 
-                                                    meal_id, min(date) first_meal_date, max(date) recent_meal_date, count(meal_id) meal_count, avg(rating) avg_rating 
-                                                FROM LogEntries 
-                                                WHERE 
-                                                    meal_id=:meal_id GROUP BY meal_id"""), {'meal_id':meal_id}).all())
-    if meal_stats.shape[0] > 0:
-        meal_stats = meal_stats.set_index('meal_id').to_dict(orient='index')
-    else:
-        meal_stats = {meal_id:{'first_meal_date':'never', 'recent_meal_date':'never', 'meal_count':0, 'avg_rating':0}}
 
     if not meal:
         return HTMLResponse(content="Meal not found", status_code=404)
@@ -297,7 +294,6 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
             {"date": log_entry.date, "rating":log_entry.rating, "notes":log_entry.notes}
             for log_entry in meal.log_entries
         ],
-        "mealStats": meal_stats[meal_id],
     }
 
     return templates.TemplateResponse('meal_entry_form.html', {'request': request, 'meal': meal_data})
@@ -310,6 +306,105 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
 async def meal_entry_form(request:Request):
     return templates.TemplateResponse('meal_entry_form.html', {'request':request, 'meal':{'meal_id':-1}})
 
+
+
+@app.get('/dashboard', response_class=HTMLResponse)
+async def dashboard(request: Request, db: Session = Depends(get_db)):
+    total_meals = db.query(Meal).count()
+    total_log_entries = db.query(LogEntry).count()
+
+    # Aggregate stats
+    agg_stats = db.execute(text("""
+        SELECT
+            count(DISTINCT meal_id) meals_logged,
+            avg(rating) avg_rating,
+            min(date) first_log_date,
+            max(date) latest_log_date
+        FROM LogEntries
+        WHERE meal_id IS NOT NULL
+    """)).first()
+
+    # Breakdown by cuisine type
+    cuisine_breakdown = db.execute(text("""
+        SELECT cuisine_type, count(*) count
+        FROM Meals
+        WHERE cuisine_type IS NOT NULL AND cuisine_type != ''
+        GROUP BY cuisine_type
+        ORDER BY count DESC
+    """)).all()
+
+    # Breakdown by cooking mode
+    mode_breakdown = db.execute(text("""
+        SELECT cooking_mode, count(*) count
+        FROM Meals
+        WHERE cooking_mode IS NOT NULL AND cooking_mode != ''
+        GROUP BY cooking_mode
+        ORDER BY count DESC
+    """)).all()
+
+    # Breakdown by cooking ease
+    ease_breakdown = db.execute(text("""
+        SELECT cooking_ease, count(*) count
+        FROM Meals
+        WHERE cooking_ease IS NOT NULL AND cooking_ease != ''
+        GROUP BY cooking_ease
+        ORDER BY count DESC
+    """)).all()
+
+    # Most cooked meals (top 5)
+    most_cooked = db.execute(text("""
+        SELECT m.meal_id, m.name, count(l.log_entry_id) times_cooked, avg(l.rating) avg_rating
+        FROM LogEntries l
+        JOIN Meals m ON m.meal_id = l.meal_id
+        GROUP BY m.meal_id
+        ORDER BY times_cooked DESC
+        LIMIT 5
+    """)).all()
+
+    # Recently logged meals (last 10)
+    recent_logs = db.execute(text("""
+        SELECT l.date, l.rating, l.notes, m.meal_id, m.name
+        FROM LogEntries l
+        JOIN Meals m ON m.meal_id = l.meal_id
+        ORDER BY l.date DESC
+        LIMIT 10
+    """)).all()
+
+    # Recently added meals (last 5)
+    recent_meals = (
+        db.query(Meal)
+        .order_by(Meal.meal_id.desc())
+        .limit(5)
+        .all()
+    )
+
+    dashboard_data = {
+        "total_meals": total_meals,
+        "total_log_entries": total_log_entries,
+        "meals_logged": agg_stats.meals_logged if agg_stats.meals_logged else 0,
+        "avg_rating": round(agg_stats.avg_rating, 1) if agg_stats.avg_rating else 0,
+        "first_log_date": agg_stats.first_log_date or "N/A",
+        "latest_log_date": agg_stats.latest_log_date or "N/A",
+        "cuisine_breakdown": [{"label": r.cuisine_type, "count": r.count} for r in cuisine_breakdown],
+        "mode_breakdown": [{"label": r.cooking_mode, "count": r.count} for r in mode_breakdown],
+        "ease_breakdown": [{"label": r.cooking_ease, "count": r.count} for r in ease_breakdown],
+        "most_cooked": [
+            {"meal_id": r.meal_id, "name": r.name, "times_cooked": r.times_cooked,
+             "avg_rating": round(r.avg_rating, 1) if r.avg_rating else "N/A"}
+            for r in most_cooked
+        ],
+        "recent_logs": [
+            {"date": r.date, "rating": r.rating, "notes": r.notes,
+             "meal_id": r.meal_id, "name": r.name}
+            for r in recent_logs
+        ],
+        "recent_meals": [
+            {"meal_id": m.meal_id, "name": m.name, "cuisine_type": m.cuisine_type or ""}
+            for m in recent_meals
+        ],
+    }
+
+    return templates.TemplateResponse('dashboard.html', {'request': request, 'data': dashboard_data})
 
 
 # Endpoint to handle image upload
