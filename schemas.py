@@ -45,7 +45,8 @@ class MealCreate(BaseModel):
     cooking_mode: Optional[str] = None
     cooking_ease: Optional[str] = None
     cooking_time: Optional[int] = None
-    image_path: Optional[str] = None  # Optional field
+    image_path: Optional[str] = None
+    source_url: Optional[str] = None
     ingredients: Optional[List[IngredientResponse]] = []
     directions: Optional[List[DirectionResponse]] = []
     log_entries: Optional[List[LogEntryResponse]] = []

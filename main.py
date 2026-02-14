@@ -29,6 +29,17 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/assets", StaticFiles(directory="assets"), name='images')
 
+def _fmt_date(date_str):
+    """Convert YYYY-MM-DD to MM/DD/YYYY for display. Passes through anything that doesn't match."""
+    if not date_str or date_str in ('N/A', 'never'):
+        return date_str
+    parts = str(date_str).split('-')
+    if len(parts) == 3:
+        return f"{parts[1]}/{parts[2]}/{parts[0]}"
+    return date_str
+
+templates.env.filters["fmt_date"] = _fmt_date
+
 
 
 def get_meal_with_ingredients(meal_id: int, db: Session):
@@ -59,6 +70,7 @@ async def create_meal(meal: MealCreate, db: Session = Depends(get_db)):
         cooking_ease=meal.cooking_ease,
         cooking_time=meal.cooking_time,
         image_path=meal.image_path,
+        source_url=meal.source_url,
     )
     db.add(db_meal)
     db.commit()
@@ -119,7 +131,7 @@ async def read_meals(skip: int = 0, limit: int = 100, db: Session = Depends(get_
     # Stats from Meal Log Entries
     meal_stats = pd.DataFrame(db.execute(text("""
                                             SELECT 
-                                                meal_id, min(date) first_meal_date, max(date) recent_meal_date, count(meal_id) meal_count, avg(rating) avg_rating 
+                                                meal_id, min(date) first_meal_date, max(date) recent_meal_date, count(meal_id) meal_count, avg(CASE WHEN rating > 0 THEN rating END) avg_rating
                                             FROM LogEntries
                                             WHERE meal_id IS NOT NULL
                                             GROUP BY meal_id
@@ -128,7 +140,8 @@ async def read_meals(skip: int = 0, limit: int = 100, db: Session = Depends(get_
                                             """), {'offset':skip, 'limit':limit}).all()
                                             )
     if meal_stats.shape[0] > 0:
-        meal_stats = meal_stats.to_dict(orient='records')
+        records = meal_stats.to_dict(orient='records')
+        meal_stats = [{k: (None if isinstance(v, float) and pd.isna(v) else v) for k, v in row.items()} for row in records]
     else:
         meal_stats = []
 
@@ -317,7 +330,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     agg_stats = db.execute(text("""
         SELECT
             count(DISTINCT meal_id) meals_logged,
-            avg(rating) avg_rating,
+            avg(CASE WHEN rating > 0 THEN rating END) avg_rating,
             min(date) first_log_date,
             max(date) latest_log_date
         FROM LogEntries
@@ -353,7 +366,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
 
     # Most cooked meals (top 5)
     most_cooked = db.execute(text("""
-        SELECT m.meal_id, m.name, count(l.log_entry_id) times_cooked, avg(l.rating) avg_rating
+        SELECT m.meal_id, m.name, count(l.log_entry_id) times_cooked, avg(CASE WHEN l.rating > 0 THEN l.rating END) avg_rating
         FROM LogEntries l
         JOIN Meals m ON m.meal_id = l.meal_id
         GROUP BY m.meal_id
@@ -381,10 +394,10 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     dashboard_data = {
         "total_meals": total_meals,
         "total_log_entries": total_log_entries,
-        "meals_logged": agg_stats.meals_logged if agg_stats.meals_logged else 0,
-        "avg_rating": round(agg_stats.avg_rating, 1) if agg_stats.avg_rating else 0,
-        "first_log_date": agg_stats.first_log_date or "N/A",
-        "latest_log_date": agg_stats.latest_log_date or "N/A",
+        "meals_logged": (agg_stats.meals_logged or 0) if agg_stats else 0,
+        "avg_rating": round(agg_stats.avg_rating, 1) if agg_stats and agg_stats.avg_rating else 0,
+        "first_log_date": (agg_stats.first_log_date or "N/A") if agg_stats else "N/A",
+        "latest_log_date": (agg_stats.latest_log_date or "N/A") if agg_stats else "N/A",
         "cuisine_breakdown": [{"label": r.cuisine_type, "count": r.count} for r in cuisine_breakdown],
         "mode_breakdown": [{"label": r.cooking_mode, "count": r.count} for r in mode_breakdown],
         "ease_breakdown": [{"label": r.cooking_ease, "count": r.count} for r in ease_breakdown],

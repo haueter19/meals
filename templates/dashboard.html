@@ -171,7 +171,7 @@
                             <tbody>
                                 {% for log in data.recent_logs %}
                                 <tr>
-                                    <td>{{ log.date }}</td>
+                                    <td>{{ log.date | fmt_date }}</td>
                                     <td><a href="/meal/{{ log.meal_id }}">{{ log.name }}</a></td>
                                     <td class="text-center">{{ log.rating if log.rating and log.rating >= 0 else "-" }}</td>
                                     <td>{{ log.notes or "" }}</td>

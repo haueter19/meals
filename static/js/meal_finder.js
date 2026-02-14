@@ -2,6 +2,13 @@ function viewMeal(meal_id){
     window.location = window.location.origin+'/meal/'+meal_id
 }
 
+function formatDate(dateStr) {
+    if (!dateStr || dateStr === 'Never eaten') return dateStr;
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[1]}/${parts[2]}/${parts[0]}`;
+    return dateStr;
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const mealList = document.getElementById("meal-list");
@@ -38,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h5 class="card-title">${meal.name}</h5>
                         <p class="card-text">${meal.description || "No description available."}</p>
                         <p>Meal count: <span class="badge bg-secondary">${meal_count}</span></p>
-                        <p>Most recent meal: ${recent_meal_date}</p>
+                        <p>Most recent meal: ${formatDate(recent_meal_date)}</p>
 
                         <div class="btn-toolbar" role="group" aria-label="Basic outlined example">
                             <a href="/meal/${meal.meal_id}" class="btn btn-outline-primary mx-2 stretched-link">View</a>
