@@ -137,7 +137,7 @@ document.getElementById('submit-btn')?.addEventListener('click', function() {
             //logEntryNum++;
             jsonData.log_entries.push({
                 date: logEntryDate,
-                rating: -1,
+                rating: logEntryRating ? parseInt(logEntryRating, 10) : null,
                 notes: logEntryNotes
             });
         }     
@@ -245,7 +245,7 @@ function addMealLogEntry() {
     let i = container.childElementCount + 1;
     newRow.innerHTML = `
         <input type="date" name="log_entry_date_${i}" class="log-date" placeholder="Date">
-        <input type="number" name="log_entry_rating_${i}" class="log-rating" size="4" min=0 max=10 placeholder="Rating">
+        <input type="number" name="log_entry_rating_${i}" class="log-rating" size="4" min=1 max=5 placeholder="Rating">
         <textarea name="log_entry_notes_${i}" class="log-notes" rows="5" placeholder="Notes"></textarea>
         <button type="button" class="btn btn-sm delete-btn btn-danger" onclick="this.parentElement.remove()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
