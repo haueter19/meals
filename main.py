@@ -295,6 +295,7 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
         "cooking_ease": meal.cooking_ease,
         "cooking_time": meal.cooking_time,
         "image_path": meal.image_path,
+        "source_url": meal.source_url,
         "ingredients": [
             {"ingredient_id": ing.ingredient_id, "name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
             for ing in meal.ingredients
