@@ -265,7 +265,7 @@ async def gotoentry(request:Request):
 # Returns the meal entry form web page
 @app.get('/find', response_class=HTMLResponse)
 async def meal_entry_form(request:Request):
-    return templates.TemplateResponse('meal_finder.html', {'request':request})
+    return templates.TemplateResponse(request=request, name='meal_finder.html')
 
 
 
@@ -310,7 +310,7 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
         ],
     }
 
-    return templates.TemplateResponse('meal_entry_form.html', {'request': request, 'meal': meal_data})
+    return templates.TemplateResponse(request=request, name='meal_entry_form.html', context={'meal': meal_data})
 
 
 
@@ -318,7 +318,7 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
 # Returns the meal entry form web page
 @app.get('/entry', response_class=HTMLResponse)
 async def meal_entry_form(request:Request):
-    return templates.TemplateResponse('meal_entry_form.html', {'request':request, 'meal':{'meal_id':-1}})
+    return templates.TemplateResponse(request=request, name='meal_entry_form.html', context={'meal': {'meal_id': -1}})
 
 
 
@@ -418,7 +418,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         ],
     }
 
-    return templates.TemplateResponse('dashboard.html', {'request': request, 'data': dashboard_data})
+    return templates.TemplateResponse(request=request, name='dashboard.html', context={'data': dashboard_data})
 
 
 # Endpoint to handle image upload
