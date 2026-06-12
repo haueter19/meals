@@ -61,6 +61,7 @@ class MealResponse(BaseModel):
     cooking_ease: Optional[str] = None
     cooking_time: Optional[int] = None
     image_path: Optional[str] = None
+    source_url: Optional[str] = None
     ingredients: List[IngredientResponse] = []
     directions: List[DirectionResponse] = []
     log_entries: List[LogEntryResponse] = []

@@ -2,6 +2,10 @@ function viewMeal(meal_id){
     window.location = window.location.origin+'/meal/'+meal_id
 }
 
+function isUrl(str) {
+    return str && (str.startsWith('http://') || str.startsWith('https://'));
+}
+
 function formatDate(dateStr) {
     if (!dateStr || dateStr === 'Never eaten') return dateStr;
     const parts = dateStr.split('-');
@@ -48,7 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <p>Most recent meal: ${formatDate(recent_meal_date)}</p>
 
                         <div class="btn-toolbar" role="group" aria-label="Basic outlined example">
-                            <a href="/meal/${meal.meal_id}" class="btn btn-outline-primary mx-2 stretched-link">View</a>
+                            <a href="/meal/${meal.meal_id}" class="btn btn-outline-primary mx-2">View</a>
+                            ${meal.source_url ? `<a href="${isUrl(meal.source_url) ? meal.source_url : '#'}" ${isUrl(meal.source_url) ? 'target="_blank" rel="noopener noreferrer"' : 'onclick="return false"'} class="btn btn-outline-secondary mx-2" title="${meal.source_url}">${isUrl(meal.source_url) ? 'Source' : meal.source_url}</a>` : ''}
                         </div>
                         <br>
                         <span class="badge bg-info mt-2">${meal.cuisine_type}</span>
