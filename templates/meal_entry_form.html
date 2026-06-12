@@ -276,13 +276,37 @@
                         </div>
                     </div>
                     <div class="row mt-3">
-                        <div class="col-md-12 col-lg-6">
+                        <div class="col-12">
                             <div class="mealLogSection mb-3">
-                                <label for="mealLogContainer" class="form-label fw-bold">Meal Log</label>
-                                <div id="mealLogContainer" class="mb-2"></div>
-                                <button type="button" class="btn add-btn btn-success" onclick="addMealLogEntry()">
-                                    <i class="bi bi-plus-lg"></i>
-                                </button>
+                                <label class="form-label fw-bold">Meal Log</label>
+                                <div class="d-flex gap-2 mb-3 align-items-end flex-wrap">
+                                    <div>
+                                        <label class="form-label small mb-1">Date</label>
+                                        <input type="date" id="new-log-date" class="form-control form-control-sm">
+                                    </div>
+                                    <div>
+                                        <label class="form-label small mb-1">Rating</label>
+                                        <input type="number" id="new-log-rating" class="form-control form-control-sm" min="1" max="5" placeholder="1–5" style="width:70px">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <label class="form-label small mb-1">Notes</label>
+                                        <input type="text" id="new-log-notes" class="form-control form-control-sm" placeholder="Optional notes">
+                                    </div>
+                                    <button type="button" class="btn btn-success btn-sm" onclick="addLogEntry()">
+                                        <i class="bi bi-plus-lg"></i> Add
+                                    </button>
+                                </div>
+                                <table class="table table-sm table-hover mb-0" id="logTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Rating</th>
+                                            <th>Notes</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logTableBody"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

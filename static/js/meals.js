@@ -128,19 +128,24 @@ document.getElementById('submit-btn')?.addEventListener('click', function() {
         }     
     });
 
-    //let logEntryNum = 0;
-    document.querySelectorAll('.log-row').forEach(item => {
-        const logEntryDate = item.querySelector(`input[name^="log_entry_date_"]`).value;
-        const logEntryRating = item.querySelector(`input[name^="log_entry_rating_"]`).value;
-        const logEntryNotes = item.querySelector(`textarea[name^="log_entry_notes_"]`).value;
-        if (logEntryDate != ''){
-            //logEntryNum++;
+    document.querySelectorAll('#logTableBody .log-row').forEach(tr => {
+        let date, rating, notes;
+        if (tr.classList.contains('editing')) {
+            date = tr.querySelector('input[type="date"]').value;
+            rating = tr.querySelector('input[type="number"]').value;
+            notes = tr.querySelector('input[type="text"]').value;
+        } else {
+            date = tr.dataset.date;
+            rating = tr.dataset.rating;
+            notes = tr.dataset.notes;
+        }
+        if (date) {
             jsonData.log_entries.push({
-                date: logEntryDate,
-                rating: logEntryRating ? parseInt(logEntryRating, 10) : null,
-                notes: logEntryNotes
+                date: date,
+                rating: rating ? parseInt(rating, 10) : null,
+                notes: notes || null
             });
-        }     
+        }
     });
 
     console.log(jsonData)
@@ -238,22 +243,80 @@ function addDirection() {
 }
 
 
-function addMealLogEntry() {
-    const container = document.getElementById('mealLogContainer');
-    const newRow = document.createElement('div');
-    newRow.className = 'log-row mb-1 w-100';
-    let i = container.childElementCount + 1;
-    newRow.innerHTML = `
-        <input type="date" name="log_entry_date_${i}" class="log-date" placeholder="Date">
-        <input type="number" name="log_entry_rating_${i}" class="log-rating" size="4" min=1 max=5 placeholder="Rating">
-        <textarea name="log_entry_notes_${i}" class="log-notes" rows="5" placeholder="Notes"></textarea>
-        <button type="button" class="btn btn-sm delete-btn btn-danger" onclick="this.parentElement.remove()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-            </svg>
-        </button>
+function formatLogDate(dateStr) {
+    if (!dateStr) return '—';
+    const [y, m, d] = dateStr.split('-');
+    return `${m}/${d}/${y}`;
+}
+
+function logRowReadHTML(date, rating, notes) {
+    return `
+        <td>${formatLogDate(date)}</td>
+        <td>${rating || '—'}</td>
+        <td class="text-truncate" style="max-width:220px" title="${notes || ''}">${notes || ''}</td>
+        <td class="text-nowrap">
+            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="editLogRow(this)">Edit</button>
+            <button type="button" class="btn btn-outline-danger btn-sm py-0 px-2" onclick="deleteLogRow(this)">Del</button>
+        </td>
     `;
-    container.appendChild(newRow);
+}
+
+function appendLogRow(date, rating, notes) {
+    const tbody = document.getElementById('logTableBody');
+    const tr = document.createElement('tr');
+    tr.className = 'log-row';
+    tr.dataset.date = date || '';
+    tr.dataset.rating = rating || '';
+    tr.dataset.notes = notes || '';
+    tr.innerHTML = logRowReadHTML(date, rating, notes);
+    tbody.appendChild(tr);
+}
+
+function addLogEntry() {
+    const date = document.getElementById('new-log-date').value;
+    if (!date) return;
+    const rating = document.getElementById('new-log-rating').value;
+    const notes = document.getElementById('new-log-notes').value;
+    appendLogRow(date, rating, notes);
+    document.getElementById('new-log-rating').value = '';
+    document.getElementById('new-log-notes').value = '';
+}
+
+function editLogRow(btn) {
+    const tr = btn.closest('tr');
+    const { date, rating, notes } = tr.dataset;
+    tr.classList.add('editing');
+    tr.innerHTML = `
+        <td><input type="date" class="form-control form-control-sm" value="${date}"></td>
+        <td><input type="number" class="form-control form-control-sm" value="${rating}" min="1" max="5" style="width:65px"></td>
+        <td><input type="text" class="form-control form-control-sm" value="${notes}"></td>
+        <td class="text-nowrap">
+            <button type="button" class="btn btn-success btn-sm py-0 px-2" onclick="saveLogRow(this)">Save</button>
+            <button type="button" class="btn btn-secondary btn-sm py-0 px-2" onclick="cancelLogRow(this)">Cancel</button>
+        </td>
+    `;
+}
+
+function saveLogRow(btn) {
+    const tr = btn.closest('tr');
+    const date = tr.querySelector('input[type="date"]').value;
+    const rating = tr.querySelector('input[type="number"]').value;
+    const notes = tr.querySelector('input[type="text"]').value;
+    tr.dataset.date = date;
+    tr.dataset.rating = rating;
+    tr.dataset.notes = notes;
+    tr.classList.remove('editing');
+    tr.innerHTML = logRowReadHTML(date, rating, notes);
+}
+
+function cancelLogRow(btn) {
+    const tr = btn.closest('tr');
+    tr.classList.remove('editing');
+    tr.innerHTML = logRowReadHTML(tr.dataset.date, tr.dataset.rating, tr.dataset.notes);
+}
+
+function deleteLogRow(btn) {
+    btn.closest('tr').remove();
 }
 
 function uploadImage() {
@@ -336,15 +399,13 @@ $(document).ready(function(){
         $('input[name="direction_'+direction_step+'"]').val(v['description']);
     })
 
-    // Adds any existing log entries
-    let log_entry_num = 0;
-    $.each(mealData['logEntries'], function(k,v){
-        log_entry_num++;
-        addMealLogEntry()
-        $('input[name="log_entry_date_'+log_entry_num+'"]').val(v['date']);
-        $('input[name="log_entry_rating_'+log_entry_num+'"]').val(v['rating']);
-        $('input[name="log_entry_notes_'+log_entry_num+'"]').val(v['notes']);
-    })
+    // Set today's date in the new-entry form
+    document.getElementById('new-log-date').value = new Date().toISOString().split('T')[0];
+
+    // Populate existing log entries
+    $.each(mealData['logEntries'], function(k, v) {
+        appendLogRow(v.date, v.rating, v.notes);
+    });
 
     document.getElementById('image_uploader').addEventListener('change', function(event) {
         const fileName = event.target.files[0]?.name; // Get the selected file name
