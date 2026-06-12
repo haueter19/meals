@@ -402,11 +402,6 @@ $(document).ready(function(){
     // Set today's date in the new-entry form
     document.getElementById('new-log-date').value = new Date().toISOString().split('T')[0];
 
-    // Populate existing log entries
-    $.each(mealData['logEntries'], function(k, v) {
-        appendLogRow(v.date, v.rating, v.notes);
-    });
-
     document.getElementById('image_uploader').addEventListener('change', function(event) {
         const fileName = event.target.files[0]?.name; // Get the selected file name
         if (fileName) {

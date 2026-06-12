@@ -347,12 +347,17 @@
 
     <script>
         $("#meal_pic").attr("src", "/assets/images/"+mealData['image_path']);
-        
+
         $.each(mealData, function(k,v){
             $("#"+k).val(v)
-        })
+        });
 
-        
+        // Populate log entries synchronously after meals.js has loaded
+        if (mealData.logEntries) {
+            mealData.logEntries.forEach(function(v) {
+                appendLogRow(v.date, v.rating, v.notes);
+            });
+        }
     </script>
 </body>
 </html>
