@@ -1,4 +1,4 @@
-To start server from with docker, use this folder to run this command:
+To start server with docker, use this folder to run this command:
 docker compose up -d
 
 # Stop the container:
