@@ -306,7 +306,7 @@ async def meal_entry_form(request: Request, meal_id: int, db: Session = Depends(
         ],
         "logEntries": [
             {"date": log_entry.date, "rating":log_entry.rating, "notes":log_entry.notes}
-            for log_entry in meal.log_entries
+            for log_entry in sorted(meal.log_entries, key=lambda e: e.date or "", reverse=True)
         ],
     }
 
