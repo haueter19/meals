@@ -42,23 +42,30 @@ document.addEventListener("DOMContentLoaded", () => {
             const mealCard = document.createElement("div");
             mealCard.className = "col-md-6 col-lg-4 mb-3 d-flex align-items-stretch";
 
+            const imgSrc = meal.image_path ? `/assets/images/${meal.image_path}` : '/assets/images/image.jpg';
             mealCard.innerHTML = `
-                <div id="meal_${meal.meal_id}" class="card shadow-med">
-                    <img src="/assets/images/${meal.image_path}" || '/assets/images/image.jpg'}" class="card-img-top" max-height="275" style="object-fit: contain;">
+                <div id="meal_${meal.meal_id}" class="meal-card w-100">
+                    <div class="card-img-wrap">
+                        <img src="${imgSrc}" alt="${meal.name}" onerror="this.src='/assets/images/image.jpg'">
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">${meal.name}</h5>
-                        <p class="card-text">${meal.description || "No description available."}</p>
-                        <p>Meal count: <span class="badge bg-secondary">${meal_count}</span></p>
-                        <p>Most recent meal: ${formatDate(recent_meal_date)}</p>
-
-                        <div class="btn-toolbar" role="group" aria-label="Basic outlined example">
-                            <a href="/meal/${meal.meal_id}" class="btn btn-outline-primary mx-2">View</a>
-                            ${meal.source_url ? `<a href="${isUrl(meal.source_url) ? meal.source_url : '#'}" ${isUrl(meal.source_url) ? 'target="_blank" rel="noopener noreferrer"' : 'onclick="return false"'} class="btn btn-outline-secondary mx-2" title="${meal.source_url}">${isUrl(meal.source_url) ? 'Source' : meal.source_url}</a>` : ''}
+                        <p class="card-desc">${meal.description || "No description available."}</p>
+                        <div class="tag-row">
+                            ${meal.cuisine_type ? `<span class="tag tag-cuisine">${meal.cuisine_type}</span>` : ''}
+                            ${meal.cooking_mode  ? `<span class="tag tag-mode">${meal.cooking_mode}</span>`   : ''}
+                            ${meal.cooking_ease  ? `<span class="tag tag-ease">${meal.cooking_ease}</span>`   : ''}
                         </div>
-                        <br>
-                        <span class="badge bg-info mt-2">${meal.cuisine_type}</span>
-                        <span class="badge bg-primary mt-2">${meal.cooking_mode}</span>
-                        <span class="badge bg-warning mt-2">${meal.cooking_ease}</span>
+                        <div class="card-footer-inner">
+                            <div>
+                                <div class="stat-item">Times made: <strong>${meal_count}</strong></div>
+                                <div class="stat-item">Last eaten: <strong>${formatDate(recent_meal_date)}</strong></div>
+                            </div>
+                            <div class="action-row">
+                                <a href="/meal/${meal.meal_id}" class="btn-view">View</a>
+                                ${meal.source_url && isUrl(meal.source_url) ? `<a href="${meal.source_url}" target="_blank" rel="noopener noreferrer" class="btn-source">Source</a>` : ''}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
